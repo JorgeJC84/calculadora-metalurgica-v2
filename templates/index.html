@@ -1,66 +1,57 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Calculadora de Eficiencia Metalúrgica</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            background: linear-gradient(to right, #f2f2f2, #e6f0ff);
-            min-height: 100vh;
-        }
-        .card {
-            border: none;
-            border-radius: 15px;
-        }
-        .form-label {
-            font-weight: 500;
-        }
-        .resultados ul {
-            list-style: none;
-            padding-left: 0;
-        }
-        .resultados li::before {
-            content: "🔹 ";
-        }
-    </style>
-</head>
-<body>
-    <div class="container py-5">
-        <h1 class="text-center text-primary mb-4">🧪 Calculadora de Eficiencia Metalúrgica</h1>
-        <div class="row justify-content-center">
-            <div class="col-md-6">
-                <div class="card shadow p-4">
-                    <form method="POST" action="/">
-                        <div class="mb-3">
-                            <label class="form-label">Ley de Cabeza (%)</label>
-                            <input type="number" step="0.01" name="ley_cabeza" class="form-control" placeholder="Ej: 1.2" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Ley de Colas (%)</label>
-                            <input type="number" step="0.01" name="ley_colas" class="form-control" placeholder="Ej: 0.3" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Toneladas Tratadas</label>
-                            <input type="number" step="0.01" name="toneladas" class="form-control" placeholder="Ej: 10000" required>
-                        </div>
-                        <button type="submit" class="btn btn-success w-100">🔍 Calcular</button>
-                    </form>
+from flask import Flask, render_template, request
 
-                    {% if resultado %}
-                    <div class="mt-4 p-3 bg-light rounded resultados">
-                        <h5 class="mb-3">📊 Resultados:</h5>
-                        <ul>
-                            <li><strong>Metal en cabeza:</strong> {{ resultado.metal_cabeza }} t</li>
-                            <li><strong>Metal en colas:</strong> {{ resultado.metal_colas }} t</li>
-                            <li><strong>Metal recuperado:</strong> {{ resultado.metal_recuperado }} t</li>
-                            <li><strong>Recuperación:</strong> {{ resultado.recuperacion }} %</li>
-                        </ul>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    </div>
-</body>
-</html>
+app = Flask(__name__)
+
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    resultado = None
+    if request.method == 'POST':
+        try:
+            ley_cabeza = float(request.form['ley_cabeza'])
+            ley_colas = float(request.form['ley_colas'])
+            toneladas = float(request.form['toneladas'])
+
+            tipo_variable = request.form.get('tipo_variable')
+            valor_variable = float(request.form['valor_variable'])
+
+            # Cálculo básico
+            metal_cabeza = toneladas * ley_cabeza / 100
+            metal_colas = toneladas * ley_colas / 100
+            metal_recuperado = metal_cabeza - metal_colas
+            recuperacion = (metal_recuperado / metal_cabeza) * 100
+
+            # Cálculo extendido según variable adicional
+            masa_conc = masa_rels = ley_conc = None
+
+            if tipo_variable == 'ley_conc':
+                ley_conc = valor_variable
+                masa_conc = metal_recuperado / (ley_conc / 100)
+                masa_rels = toneladas - masa_conc
+
+            elif tipo_variable == 'masa_conc':
+                masa_conc = valor_variable
+                ley_conc = (metal_recuperado / masa_conc) * 100
+                masa_rels = toneladas - masa_conc
+
+            elif tipo_variable == 'masa_rels':
+                masa_rels = valor_variable
+                masa_conc = toneladas - masa_rels
+                ley_conc = (metal_recuperado / masa_conc) * 100
+
+            resultado = {
+                'metal_cabeza': round(metal_cabeza, 2),
+                'metal_colas': round(metal_colas, 2),
+                'metal_recuperado': round(metal_recuperado, 2),
+                'recuperacion': round(recuperacion, 2),
+                'masa_conc': round(masa_conc, 2),
+                'masa_rels': round(masa_rels, 2),
+                'ley_conc': round(ley_conc, 2)
+            }
+
+        except Exception as e:
+            resultado = {'error': f'Ocurrió un error: {e}'}
+
+    return render_template('index.html', resultado=resultado)
+
+if __name__ == '__main__':
+    app.run(debug=True)
