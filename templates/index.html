@@ -44,46 +44,19 @@
                             <label class="form-label">Toneladas Tratadas</label>
                             <input type="number" step="0.01" name="toneladas" class="form-control" placeholder="Ej: 10000" required>
                         </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Selecciona variable adicional:</label>
-                            <select class="form-select" name="tipo_variable">
-                                <option value="ley_conc">Ley de concentrado (%)</option>
-                                <option value="masa_conc">Masa de concentrado (t)</option>
-                                <option value="masa_rels">Masa de relaves (t)</option>
-                            </select>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Valor de variable adicional:</label>
-                            <input type="number" step="0.01" name="valor_variable" class="form-control" placeholder="Ej: 4.5" required>
-                        </div>
-
                         <button type="submit" class="btn btn-success w-100">🔍 Calcular</button>
                     </form>
 
                     {% if resultado %}
-                        {% if resultado.error %}
-                            <div class="alert alert-danger mt-4">{{ resultado.error }}</div>
-                        {% else %}
-                            <div class="mt-4 p-3 bg-light rounded resultados">
-                                <h5 class="mb-3">📊 Resultados:</h5>
-                                <ul>
-                                    <li><strong>Metal en cabeza:</strong> {{ resultado.metal_cabeza }} t</li>
-                                    <li><strong>Metal en colas:</strong> {{ resultado.metal_colas }} t</li>
-                                    <li><strong>Metal recuperado:</strong> {{ resultado.metal_recuperado }} t</li>
-                                    <li><strong>Recuperación:</strong> {{ resultado.recuperacion }} %</li>
-                                    <li><strong>Masa de concentrado:</strong> {{ resultado.masa_conc }} t</li>
-                                    <li><strong>Masa de relaves:</strong> {{ resultado.masa_rels }} t</li>
-                                    <li><strong>Ley del concentrado:</strong> {{ resultado.ley_conc }} %</li>
-                                </ul>
-                            </div>
-
-                            <div class="text-center mt-4">
-                                <h5>🧬 Flowsheet del Proceso</h5>
-                                <img src="{{ url_for('static', filename='flowsheet_simple.png') }}" class="img-fluid rounded" style="max-height: 300px;" alt="Flowsheet metalúrgico">
-                            </div>
-                        {% endif %}
+                    <div class="mt-4 p-3 bg-light rounded resultados">
+                        <h5 class="mb-3">📊 Resultados:</h5>
+                        <ul>
+                            <li><strong>Metal en cabeza:</strong> {{ resultado.metal_cabeza }} t</li>
+                            <li><strong>Metal en colas:</strong> {{ resultado.metal_colas }} t</li>
+                            <li><strong>Metal recuperado:</strong> {{ resultado.metal_recuperado }} t</li>
+                            <li><strong>Recuperación:</strong> {{ resultado.recuperacion }} %</li>
+                        </ul>
+                    </div>
                     {% endif %}
                 </div>
             </div>
