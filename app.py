@@ -4,44 +4,31 @@ import os
 
 app = Flask(__name__)
 
-# Crear carpeta static si no existe
-os.makedirs('static', exist_ok=True)
+def calcular_eficiencia(ley_cabeza, ley_colas):
+    return (ley_cabeza - ley_colas) / ley_cabeza * 100
 
-def calcular_eficiencia(ley_cabeza, ley_colas, toneladas_tratadas, variable, valor_variable):
-    if variable == 'Ley de concentrado':
-        ley_concentrado = valor_variable
-        toneladas_concentrado = (ley_cabeza - ley_colas) / (ley_concentrado - ley_colas) * toneladas_tratadas
-    else:  # variable == 'Toneladas de concentrado'
-        toneladas_concentrado = valor_variable
-        ley_concentrado = ((ley_cabeza - ley_colas) * toneladas_tratadas) / toneladas_concentrado + ley_colas
-
-    recuperacion = (toneladas_concentrado * ley_concentrado) / (toneladas_tratadas * ley_cabeza) * 100
-    return round(recuperacion, 2), round(toneladas_concentrado, 2), round(ley_concentrado, 2)
-
-def generar_flowsheet(data):
-    fig, ax = plt.subplots(figsize=(10, 6))
+def generar_flowsheet(valores):
+    fig, ax = plt.subplots(figsize=(10, 5))
     ax.axis('off')
 
-    # Variables
-    Lc = data['ley_cabeza']
-    Lt = data['ley_colas']
-    Lcn = data['ley_concentrado']
-    Tt = data['toneladas_tratadas']
-    Tc = data['toneladas_concentrado']
+    # Extrae valores
+    t = valores['toneladas_tratadas']
+    lc = valores['ley_cabeza']
+    lco = valores['ley_colas']
+    tc = valores.get('toneladas_concentrado')
+    lc_conc = valores.get('ley_concentrado')
+    tr = valores.get('toneladas_relaves')
 
-    # Dibujo
-    ax.text(0.1, 0.8, f'Toneladas Tratadas:\n{Tt} t\nLey Cabeza: {Lc}%', bbox=dict(boxstyle="round", facecolor="lightblue"), ha='center')
-    ax.arrow(0.3, 0.8, 0.15, 0, head_width=0.02, head_length=0.02, fc='black', ec='black')
+    # Dibuja flowsheet
+    ax.text(0.05, 0.5, f"Mineral\n{t} t\n{lc:.2f}%", bbox=dict(facecolor='lightgray'), ha='center')
+    ax.arrow(0.15, 0.5, 0.2, 0, head_width=0.05, head_length=0.03, fc='blue', ec='blue')
+    ax.text(0.4, 0.7, f"Concentrado\n{tc if tc else '?'} t\n{lc_conc if lc_conc else '?'}%", bbox=dict(facecolor='lightgreen'), ha='center')
+    ax.arrow(0.35, 0.5, 0.1, 0.15, head_width=0.03, head_length=0.03, fc='green', ec='green')
+    ax.text(0.4, 0.3, f"Relaves\n{tr if tr else '?'} t\n{lco:.2f}%", bbox=dict(facecolor='lightcoral'), ha='center')
+    ax.arrow(0.35, 0.5, 0.1, -0.15, head_width=0.03, head_length=0.03, fc='red', ec='red')
 
-    ax.text(0.55, 0.9, f'Concentrado\n{Tc} t\nLey: {Lcn}%', bbox=dict(boxstyle="round", facecolor="lightgreen"), ha='center')
-    ax.arrow(0.45, 0.8, 0.1, 0.07, head_width=0.02, head_length=0.02, fc='black', ec='black')
-
-    ax.text(0.55, 0.7, f'Colas\n{round(Tt - Tc, 2)} t\nLey: {Lt}%', bbox=dict(boxstyle="round", facecolor="salmon"), ha='center')
-    ax.arrow(0.45, 0.8, 0.1, -0.07, head_width=0.02, head_length=0.02, fc='black', ec='black')
-
-    ax.set_title('Flujograma del Balance Metalúrgico', fontsize=16)
-
-    plt.savefig('static/flowsheet.png')
+    # Guarda
+    plt.savefig('static/flowsheet.png', bbox_inches='tight')
     plt.close()
 
 @app.route('/', methods=['GET', 'POST'])
@@ -54,32 +41,30 @@ def index():
             ley_cabeza = float(request.form['ley_cabeza'])
             ley_colas = float(request.form['ley_colas'])
             toneladas_tratadas = float(request.form['toneladas_tratadas'])
-            variable = request.form['variable']
-            valor_variable = float(request.form['valor_variable'])
 
-            recuperacion, toneladas_concentrado, ley_concentrado = calcular_eficiencia(
-                ley_cabeza, ley_colas, toneladas_tratadas, variable, valor_variable
-            )
+            # Variables adicionales
+            tipo_var = request.form.get('tipo_variable')
+            valor_var = float(request.form.get('valor_variable'))
 
-            resultado = {
-                'recuperacion': recuperacion,
-                'toneladas_concentrado': toneladas_concentrado,
-                'ley_concentrado': ley_concentrado
-            }
-
-            datos_flowsheet = {
+            valores = {
                 'ley_cabeza': ley_cabeza,
                 'ley_colas': ley_colas,
-                'ley_concentrado': ley_concentrado,
                 'toneladas_tratadas': toneladas_tratadas,
-                'toneladas_concentrado': toneladas_concentrado
             }
 
-            generar_flowsheet(datos_flowsheet)
+            if tipo_var == 'masa_conc':
+                valores['toneladas_concentrado'] = valor_var
+            elif tipo_var == 'ley_conc':
+                valores['ley_concentrado'] = valor_var
+            elif tipo_var == 'masa_rels':
+                valores['toneladas_relaves'] = valor_var
+
+            resultado = calcular_eficiencia(ley_cabeza, ley_colas)
+            generar_flowsheet(valores)
             imagen = 'static/flowsheet.png'
 
         except Exception as e:
-            resultado = {'error': f'Error en los datos: {e}'}
+            resultado = f"Error: {e}"
 
     return render_template('index.html', resultado=resultado, imagen=imagen)
 
