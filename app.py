@@ -4,9 +4,6 @@ import os
 
 app = Flask(__name__)
 
-def calcular_eficiencia(ley_cabeza, ley_colas):
-    return round((ley_cabeza - ley_colas) / ley_cabeza * 100, 2)
-
 def generar_flowsheet(valores):
     fig, ax = plt.subplots(figsize=(10, 5))
     ax.axis('off')
@@ -36,8 +33,6 @@ def index():
     imagen = None
 
     if request.method == 'POST':
-        print("✅ Se activó el método POST")
-
         try:
             ley_cabeza = float(request.form['ley_cabeza'])
             ley_colas = float(request.form['ley_colas'])
@@ -54,48 +49,65 @@ def index():
                 'toneladas_tratadas': toneladas_tratadas,
             }
 
-            resultado = {
-                'recuperacion': calcular_eficiencia(ley_cabeza, ley_colas)
-            }
+            resultado = {}
 
-            if ley_concentrado:
-                ley_concentrado = float(ley_concentrado)
-                valores['ley_concentrado'] = ley_concentrado
-                resultado['ley_concentrado'] = ley_concentrado
-
-            if toneladas_concentrado:
-                toneladas_concentrado = float(toneladas_concentrado)
-                valores['toneladas_concentrado'] = toneladas_concentrado
-                resultado['toneladas_concentrado'] = toneladas_concentrado
-
-            if toneladas_relaves:
-                toneladas_relaves = float(toneladas_relaves)
-                valores['toneladas_relaves'] = toneladas_relaves
-                resultado['toneladas_relaves'] = toneladas_relaves
-
-            # Cálculos adicionales si hay datos suficientes
+            # Variables base
             F = toneladas_tratadas
             f = ley_cabeza
             t = ley_colas
-            C = valores.get('toneladas_concentrado')
-            c = valores.get('ley_concentrado')
-            T = valores.get('toneladas_relaves')
 
+            # Agregar variables opcionales
+            if ley_concentrado:
+                c = float(ley_concentrado)
+                valores['ley_concentrado'] = c
+                resultado['ley_concentrado'] = c
+            else:
+                c = None
+
+            if toneladas_concentrado:
+                C = float(toneladas_concentrado)
+                valores['toneladas_concentrado'] = C
+                resultado['toneladas_concentrado'] = C
+            else:
+                C = None
+
+            if toneladas_relaves:
+                T = float(toneladas_relaves)
+                valores['toneladas_relaves'] = T
+                resultado['toneladas_relaves'] = T
+            else:
+                T = None
+
+            # Cálculo de recuperación real
             if C and c:
-                # Relación de concentración
-                resultado['RC'] = round(c / f, 2) if f != 0 else None
-
-                # Relación de enriquecimiento
-                resultado['RE'] = round((c - t) / (f - t), 2) if (f - t) != 0 else None
-
-                # Ley teórica del concentrado
+                metal_conc = C * c / 100
                 metal_feed = F * f / 100
-                resultado['ley_teorica_conc'] = round((metal_feed / C) * 100, 2) if C != 0 else None
+                recuperacion = (metal_conc / metal_feed) * 100 if metal_feed != 0 else 0
+                resultado['recuperacion'] = round(recuperacion, 2)
+            else:
+                # Cálculo por eficiencia base si falta información
+                resultado['recuperacion'] = round((f - t) / f * 100, 2) if f != 0 else 0
 
+            # Relación de concentración
+            if c and f:
+                resultado['RC'] = round(c / f, 2)
+
+            # Relación de enriquecimiento
+            if c and f and t and (f - t) != 0:
+                resultado['RE'] = round((c - t) / (f - t), 2)
+
+            # Pérdida en colas
             if T:
-                # Pérdida en colas
-                resultado['perdida_colas'] = round(T * t / 100, 2)
+                perdida_colas = T * t / 100
+                resultado['perdida_colas'] = round(perdida_colas, 2)
 
+            # Ley teórica del concentrado
+            if C:
+                metal_feed = F * f / 100
+                ley_teorica = (metal_feed / C) * 100 if C != 0 else 0
+                resultado['ley_teorica_conc'] = round(ley_teorica, 2)
+
+            # Flowsheet
             generar_flowsheet(valores)
             imagen = url_for('static', filename='flowsheet.png')
 
