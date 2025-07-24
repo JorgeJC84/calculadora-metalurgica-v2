@@ -41,17 +41,18 @@
                 <label class="form-label">Toneladas tratadas</label>
                 <input type="number" name="toneladas_tratadas" step="any" class="form-control" required placeholder="Ej: 10000">
             </div>
+            <hr>
             <div class="mb-3">
-                <label class="form-label">Selecciona variable adicional</label>
-                <select name="tipo_variable" class="form-select" required>
-                    <option value="ley_conc">Ley de concentrado (%)</option>
-                    <option value="masa_conc">Toneladas de concentrado</option>
-                    <option value="masa_rels">Toneladas de relaves</option>
-                </select>
+                <label class="form-label">Ley del concentrado (%)</label>
+                <input type="number" name="ley_concentrado" step="any" class="form-control" placeholder="Ej: 25.0">
             </div>
             <div class="mb-3">
-                <label class="form-label">Valor de variable adicional</label>
-                <input type="number" name="valor_variable" step="any" class="form-control" required placeholder="Ej: 4.5">
+                <label class="form-label">Toneladas de concentrado</label>
+                <input type="number" name="toneladas_concentrado" step="any" class="form-control" placeholder="Ej: 480">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Toneladas de relaves</label>
+                <input type="number" name="toneladas_relaves" step="any" class="form-control" placeholder="Ej: 9520">
             </div>
             <button type="submit" class="btn btn-success w-100">🔍 Calcular</button>
         </form>
@@ -64,11 +65,14 @@
                     <h5 class="titulo">📊 Resultados:</h5>
                     <ul class="mb-2">
                         <li><strong>Recuperación metalúrgica:</strong> {{ resultado.recuperacion }}%</li>
+                        {% if resultado.ley_concentrado %}
+                            <li><strong>Ley del concentrado:</strong> {{ resultado.ley_concentrado }}%</li>
+                        {% endif %}
                         {% if resultado.toneladas_concentrado %}
                             <li><strong>Toneladas de concentrado:</strong> {{ resultado.toneladas_concentrado }} t</li>
                         {% endif %}
-                        {% if resultado.ley_concentrado %}
-                            <li><strong>Ley del concentrado:</strong> {{ resultado.ley_concentrado }}%</li>
+                        {% if resultado.toneladas_relaves %}
+                            <li><strong>Toneladas de relaves:</strong> {{ resultado.toneladas_relaves }} t</li>
                         {% endif %}
                         {% if resultado.RC %}
                             <li><strong>Relación de concentración (RC):</strong> {{ resultado.RC }}</li>
@@ -80,7 +84,7 @@
                             <li><strong>Pérdida en colas:</strong> {{ resultado.perdida_colas }} t de metal</li>
                         {% endif %}
                         {% if resultado.ley_teorica_conc %}
-                            <li><strong>Ley teórica del concentrado para recuperación total:</strong> {{ resultado.ley_teorica_conc }}%</li>
+                            <li><strong>Ley teórica del concentrado:</strong> {{ resultado.ley_teorica_conc }}%</li>
                         {% endif %}
                     </ul>
                 {% endif %}
@@ -96,4 +100,3 @@
     </div>
 </body>
 </html>
-
