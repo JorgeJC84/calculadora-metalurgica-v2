@@ -38,9 +38,10 @@
             </div>
             <div class="mb-3">
                 <label class="form-label">Selecciona variable adicional</label>
-                <select name="variable" class="form-select" required>
-                    <option value="Ley de concentrado">Ley de concentrado (%)</option>
-                    <option value="Toneladas de concentrado">Toneladas de concentrado</option>
+                <select name="tipo_variable" class="form-select" required>
+                    <option value="ley_conc">Ley de concentrado (%)</option>
+                    <option value="masa_conc">Toneladas de concentrado</option>
+                    <option value="masa_rels">Toneladas de relaves</option>
                 </select>
             </div>
             <div class="mb-3">
@@ -48,13 +49,6 @@
                 <input type="number" name="valor_variable" step="any" class="form-control" required placeholder="Ej: 4.5">
             </div>
             <button type="submit" class="btn btn-success w-100">🔍 Calcular</button>
-            {% if imagen %}
-    <div class="text-center mt-4">
-        <h5>📈 Flowsheet del Proceso</h5>
-        <img src="{{ imagen }}" class="img-fluid rounded shadow" alt="Flowsheet generado" style="max-width: 700px;">
-    </div>
-{% endif %}
-
         </form>
 
         {% if resultado %}
@@ -65,8 +59,12 @@
                     <h5>📊 Resultados:</h5>
                     <ul>
                         <li><strong>Recuperación metalúrgica:</strong> {{ resultado.recuperacion }}%</li>
-                        <li><strong>Toneladas de concentrado:</strong> {{ resultado.toneladas_concentrado }} t</li>
-                        <li><strong>Ley del concentrado:</strong> {{ resultado.ley_concentrado }}%</li>
+                        {% if resultado.toneladas_concentrado %}
+                            <li><strong>Toneladas de concentrado:</strong> {{ resultado.toneladas_concentrado }} t</li>
+                        {% endif %}
+                        {% if resultado.ley_concentrado %}
+                            <li><strong>Ley del concentrado:</strong> {{ resultado.ley_concentrado }}%</li>
+                        {% endif %}
                     </ul>
                 {% endif %}
             </div>
@@ -74,8 +72,8 @@
 
         {% if imagen %}
             <div class="text-center mt-4">
-                <h5>📈 Flowsheet del Proceso</h5>
-                <img src="{{ imagen }}" class="img-fluid rounded shadow" alt="Flowsheet generado" style="max-width: 700px;">
+                <h5>🧬 Flowsheet del Proceso</h5>
+                <img src="{{ url_for('static', filename='flowsheet.png') }}" class="img-fluid rounded shadow" alt="Flowsheet generado" style="max-width: 700px;">
             </div>
         {% endif %}
     </div>
