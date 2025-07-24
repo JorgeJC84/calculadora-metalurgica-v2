@@ -29,6 +29,7 @@ def generar_flowsheet(valores):
 
     # Guarda
     plt.savefig('static/flowsheet.png', bbox_inches='tight')
+    print("✅ Flowsheet generado y guardado en static/flowsheet.png")
     plt.close()
 
 @app.route('/', methods=['GET', 'POST'])
