@@ -48,6 +48,13 @@
                 <input type="number" name="valor_variable" step="any" class="form-control" required placeholder="Ej: 4.5">
             </div>
             <button type="submit" class="btn btn-success w-100">🔍 Calcular</button>
+            {% if imagen %}
+    <div class="text-center mt-4">
+        <h5>📈 Flowsheet del Proceso</h5>
+        <img src="{{ imagen }}" class="img-fluid rounded shadow" alt="Flowsheet generado" style="max-width: 700px;">
+    </div>
+{% endif %}
+
         </form>
 
         {% if resultado %}
