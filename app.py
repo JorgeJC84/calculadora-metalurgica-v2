@@ -27,7 +27,7 @@ def generar_flowsheet(valores):
     ax.text(0.4, 0.3, f"Relaves\n{tr if tr else '?'} t\n{lco:.2f}%", bbox=dict(facecolor='lightcoral'), ha='center')
     ax.arrow(0.35, 0.5, 0.1, -0.15, head_width=0.03, head_length=0.03, fc='red', ec='red')
 
-    # Guarda
+    # Guarda imagen
     plt.savefig('static/flowsheet.png', bbox_inches='tight')
     print("✅ Flowsheet generado y guardado en static/flowsheet.png")
     plt.close()
@@ -38,12 +38,13 @@ def index():
     imagen = None
 
     if request.method == 'POST':
+        print("✅ Se activó el método POST")  # Debug
+
         try:
             ley_cabeza = float(request.form['ley_cabeza'])
             ley_colas = float(request.form['ley_colas'])
             toneladas_tratadas = float(request.form['toneladas_tratadas'])
 
-            # Variables adicionales
             tipo_var = request.form.get('tipo_variable')
             valor_var = float(request.form.get('valor_variable'))
 
@@ -63,9 +64,11 @@ def index():
             resultado = calcular_eficiencia(ley_cabeza, ley_colas)
             generar_flowsheet(valores)
             imagen = 'static/flowsheet.png'
+            print("✅ Todo calculado correctamente")
 
         except Exception as e:
-            resultado = f"Error: {e}"
+            resultado = f"❌ Error: {e}"
+            print(f"❌ Excepción atrapada: {e}")
 
     return render_template('index.html', resultado=resultado, imagen=imagen)
 
