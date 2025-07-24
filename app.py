@@ -64,6 +64,30 @@ def index():
                 resultado['ley_concentrado'] = valor_var
             elif tipo_var == 'masa_rels':
                 valores['toneladas_relaves'] = valor_var
+                resultado['toneladas_relaves'] = valor_var
+
+            # Cálculos adicionales
+            F = toneladas_tratadas
+            f = ley_cabeza
+            t = ley_colas
+            C = valores.get('toneladas_concentrado')
+            c = valores.get('ley_concentrado')
+            T = valores.get('toneladas_relaves')
+
+            if C and c:
+                # Relación de concentración
+                resultado['RC'] = round(c / f, 2) if f != 0 else None
+
+                # Relación de enriquecimiento
+                resultado['RE'] = round((c - t) / (f - t), 2) if (f - t) != 0 else None
+
+                # Ley teórica del concentrado
+                metal_feed = F * f / 100
+                resultado['ley_teorica_conc'] = round((metal_feed / C) * 100, 2) if C != 0 else None
+
+            if T:
+                # Pérdida en colas
+                resultado['perdida_colas'] = round(T * t / 100, 2)
 
             generar_flowsheet(valores)
             imagen = url_for('static', filename='flowsheet.png')
@@ -76,3 +100,4 @@ def index():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
