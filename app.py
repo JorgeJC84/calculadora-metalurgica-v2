@@ -43,8 +43,10 @@ def index():
             ley_colas = float(request.form['ley_colas'])
             toneladas_tratadas = float(request.form['toneladas_tratadas'])
 
-            tipo_var = request.form.get('tipo_variable')
-            valor_var = float(request.form.get('valor_variable'))
+            # Leer múltiples variables opcionales
+            ley_concentrado = request.form.get('ley_concentrado')
+            toneladas_concentrado = request.form.get('toneladas_concentrado')
+            toneladas_relaves = request.form.get('toneladas_relaves')
 
             valores = {
                 'ley_cabeza': ley_cabeza,
@@ -56,17 +58,22 @@ def index():
                 'recuperacion': calcular_eficiencia(ley_cabeza, ley_colas)
             }
 
-            if tipo_var == 'masa_conc':
-                valores['toneladas_concentrado'] = valor_var
-                resultado['toneladas_concentrado'] = valor_var
-            elif tipo_var == 'ley_conc':
-                valores['ley_concentrado'] = valor_var
-                resultado['ley_concentrado'] = valor_var
-            elif tipo_var == 'masa_rels':
-                valores['toneladas_relaves'] = valor_var
-                resultado['toneladas_relaves'] = valor_var
+            if ley_concentrado:
+                ley_concentrado = float(ley_concentrado)
+                valores['ley_concentrado'] = ley_concentrado
+                resultado['ley_concentrado'] = ley_concentrado
 
-            # Cálculos adicionales
+            if toneladas_concentrado:
+                toneladas_concentrado = float(toneladas_concentrado)
+                valores['toneladas_concentrado'] = toneladas_concentrado
+                resultado['toneladas_concentrado'] = toneladas_concentrado
+
+            if toneladas_relaves:
+                toneladas_relaves = float(toneladas_relaves)
+                valores['toneladas_relaves'] = toneladas_relaves
+                resultado['toneladas_relaves'] = toneladas_relaves
+
+            # Cálculos adicionales si hay datos suficientes
             F = toneladas_tratadas
             f = ley_cabeza
             t = ley_colas
@@ -100,4 +107,3 @@ def index():
 
 if __name__ == '__main__':
     app.run(debug=True)
-
