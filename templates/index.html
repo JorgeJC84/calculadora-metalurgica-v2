@@ -4,63 +4,53 @@
     <meta charset="UTF-8">
     <title>Calculadora de Eficiencia Metalúrgica</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            background: linear-gradient(to right, #f2f2f2, #e6f0ff);
-            min-height: 100vh;
-        }
-        .card {
-            border: none;
-            border-radius: 15px;
-        }
-        .form-label {
-            font-weight: 500;
-        }
-        .resultados ul {
-            list-style: none;
-            padding-left: 0;
-        }
-        .resultados li::before {
-            content: "🔹 ";
-        }
-    </style>
 </head>
-<body>
-    <div class="container py-5">
-        <h1 class="text-center text-primary mb-4">🧪 Calculadora de Eficiencia Metalúrgica</h1>
-        <div class="row justify-content-center">
-            <div class="col-md-6">
-                <div class="card shadow p-4">
-                    <form method="POST" action="/">
-                        <div class="mb-3">
-                            <label class="form-label">Ley de Cabeza (%)</label>
-                            <input type="number" step="0.01" name="ley_cabeza" class="form-control" placeholder="Ej: 1.2" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Ley de Colas (%)</label>
-                            <input type="number" step="0.01" name="ley_colas" class="form-control" placeholder="Ej: 0.3" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Toneladas Tratadas</label>
-                            <input type="number" step="0.01" name="toneladas" class="form-control" placeholder="Ej: 10000" required>
-                        </div>
-                        <button type="submit" class="btn btn-success w-100">🔍 Calcular</button>
-                    </form>
-
-                    {% if resultado %}
-                    <div class="mt-4 p-3 bg-light rounded resultados">
-                        <h5 class="mb-3">📊 Resultados:</h5>
-                        <ul>
-                            <li><strong>Metal en cabeza:</strong> {{ resultado.metal_cabeza }} t</li>
-                            <li><strong>Metal en colas:</strong> {{ resultado.metal_colas }} t</li>
-                            <li><strong>Metal recuperado:</strong> {{ resultado.metal_recuperado }} t</li>
-                            <li><strong>Recuperación:</strong> {{ resultado.recuperacion }} %</li>
-                        </ul>
-                    </div>
-                    {% endif %}
-                </div>
+<body class="bg-light">
+    <div class="container mt-5">
+        <h2 class="text-primary mb-4">🧪 Calculadora de Eficiencia Metalúrgica</h2>
+        <form method="post">
+            <div class="mb-3">
+                <label class="form-label">Ley de Cabeza (%)</label>
+                <input type="number" name="ley_cabeza" class="form-control" step="any" required placeholder="Ej: 1.2">
             </div>
-        </div>
+            <div class="mb-3">
+                <label class="form-label">Ley de Colas (%)</label>
+                <input type="number" name="ley_colas" class="form-control" step="any" required placeholder="Ej: 0.3">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Toneladas Tratadas</label>
+                <input type="number" name="toneladas" class="form-control" step="any" required placeholder="Ej: 10000">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Selecciona variable adicional:</label>
+                <select name="variable_adicional" class="form-select" required>
+                    <option value="ley_concentrado">Ley de concentrado (%)</option>
+                    <option value="toneladas_concentrado">Toneladas de concentrado</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Valor de variable adicional:</label>
+                <input type="number" name="valor_variable" class="form-control" step="any" required placeholder="Ej: 4.5">
+            </div>
+            <button type="submit" class="btn btn-success">🔍 Calcular</button>
+        </form>
+
+        {% if resultado %}
+            <div class="mt-5 alert alert-info">
+                <h5>🔎 Resultados:</h5>
+                {% if resultado.error %}
+                    <p class="text-danger">{{ resultado.error }}</p>
+                {% else %}
+                    <ul>
+                        <li><strong>Rendimiento:</strong> {{ resultado.rendimiento }}%</li>
+                        <li><strong>Recuperación:</strong> {{ resultado.recuperacion }}%</li>
+                        <li><strong>Eficiencia:</strong> {{ resultado.eficiencia }}%</li>
+                        <li><strong>Ley de concentrado:</strong> {{ resultado.ley_concentrado }}%</li>
+                        <li><strong>Toneladas de concentrado:</strong> {{ resultado.toneladas_concentrado }}</li>
+                    </ul>
+                {% endif %}
+            </div>
+        {% endif %}
     </div>
 </body>
 </html>
