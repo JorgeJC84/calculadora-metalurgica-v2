@@ -17,6 +17,11 @@
             padding: 1rem;
             border-radius: 0.5rem;
         }
+        .titulo {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
     </style>
 </head>
 <body>
@@ -56,14 +61,26 @@
                 {% if resultado.error %}
                     <p class="text-danger">{{ resultado.error }}</p>
                 {% else %}
-                    <h5>📊 Resultados:</h5>
-                    <ul>
+                    <h5 class="titulo">📊 Resultados:</h5>
+                    <ul class="mb-2">
                         <li><strong>Recuperación metalúrgica:</strong> {{ resultado.recuperacion }}%</li>
                         {% if resultado.toneladas_concentrado %}
                             <li><strong>Toneladas de concentrado:</strong> {{ resultado.toneladas_concentrado }} t</li>
                         {% endif %}
                         {% if resultado.ley_concentrado %}
                             <li><strong>Ley del concentrado:</strong> {{ resultado.ley_concentrado }}%</li>
+                        {% endif %}
+                        {% if resultado.RC %}
+                            <li><strong>Relación de concentración (RC):</strong> {{ resultado.RC }}</li>
+                        {% endif %}
+                        {% if resultado.RE %}
+                            <li><strong>Relación de enriquecimiento (RE):</strong> {{ resultado.RE }}</li>
+                        {% endif %}
+                        {% if resultado.perdida_colas is not none %}
+                            <li><strong>Pérdida en colas:</strong> {{ resultado.perdida_colas }} t de metal</li>
+                        {% endif %}
+                        {% if resultado.ley_teorica_conc %}
+                            <li><strong>Ley teórica del concentrado para recuperación total:</strong> {{ resultado.ley_teorica_conc }}%</li>
                         {% endif %}
                     </ul>
                 {% endif %}
@@ -73,9 +90,10 @@
         {% if imagen %}
             <div class="text-center mt-4">
                 <h5>🧬 Flowsheet del Proceso</h5>
-                <img src="{{ url_for('static', filename='flowsheet.png') }}" class="img-fluid rounded shadow" alt="Flowsheet generado" style="max-width: 700px;">
+                <img src="{{ imagen }}" class="img-fluid rounded shadow" alt="Flowsheet generado" style="max-width: 700px;">
             </div>
         {% endif %}
     </div>
 </body>
-</html> 
+</html>
+
